@@ -1,0 +1,816 @@
+from PyQt6.QtWidgets import QApplication, QWidget
+import sys
+from PyQt6.QtCore import *
+from PyQt6.QtGui import QIcon
+import io
+from PyQt6 import uic
+import sqlite3
+
+template_1 = '''<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Form</class>
+ <widget class="QWidget" name="Form">
+  <property name="enabled">
+   <bool>true</bool>
+  </property>
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>350</width>
+    <height>200</height>
+   </rect>
+  </property>
+  <property name="font">
+   <font>
+    <pointsize>18</pointsize>
+   </font>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <widget class="QLabel" name="choose_language_in_russian">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="geometry">
+    <rect>
+     <x>80</x>
+     <y>20</y>
+     <width>251</width>
+     <height>41</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>20</pointsize>
+    </font>
+   </property>
+   <property name="text">
+    <string>Выберите язык</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="choose_language_in_english">
+   <property name="geometry">
+    <rect>
+     <x>70</x>
+     <y>60</y>
+     <width>241</width>
+     <height>41</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>20</pointsize>
+    </font>
+   </property>
+   <property name="text">
+    <string>Choose language</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="button_for_russian_translation">
+   <property name="geometry">
+    <rect>
+     <x>40</x>
+     <y>110</y>
+     <width>111</width>
+     <height>51</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>18</pointsize>
+    </font>
+   </property>
+   <property name="text">
+    <string>Русский</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="button_for_english_translation">
+   <property name="geometry">
+    <rect>
+     <x>180</x>
+     <y>110</y>
+     <width>111</width>
+     <height>51</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>18</pointsize>
+    </font>
+   </property>
+   <property name="text">
+    <string>English</string>
+   </property>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
+'''
+template_2 = '''<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Form</class>
+ <widget class="QWidget" name="Form">
+  <property name="enabled">
+   <bool>true</bool>
+  </property>
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>379</width>
+    <height>269</height>
+   </rect>
+  </property>
+  <property name="font">
+   <font>
+    <pointsize>18</pointsize>
+   </font>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <widget class="QLabel" name="name_of_window_enter_name">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>10</y>
+     <width>281</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Введите ваше имя:</string>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="enter_name">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>50</y>
+     <width>281</width>
+     <height>31</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="enter_lastname">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>130</y>
+     <width>281</width>
+     <height>31</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QLabel" name="name_of_window_enter_lastname">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>90</y>
+     <width>281</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Введите вашу фамилию:</string>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="enter_age">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>210</y>
+     <width>281</width>
+     <height>31</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QLabel" name="name_of_window_enter_age">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>170</y>
+     <width>281</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Введите ваш возраст:</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="button_for_translation">
+   <property name="geometry">
+    <rect>
+     <x>320</x>
+     <y>50</y>
+     <width>41</width>
+     <height>191</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>➡</string>
+   </property>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
+'''
+template_3 = '''<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Form</class>
+ <widget class="QWidget" name="Form">
+  <property name="enabled">
+   <bool>true</bool>
+  </property>
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>379</width>
+    <height>269</height>
+   </rect>
+  </property>
+  <property name="font">
+   <font>
+    <pointsize>18</pointsize>
+   </font>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <widget class="QLabel" name="name_of_window_enter_name">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>10</y>
+     <width>281</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Enter your name:</string>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="enter_name">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>50</y>
+     <width>281</width>
+     <height>31</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="enter_lastname">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>130</y>
+     <width>281</width>
+     <height>31</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QLabel" name="name_of_window_enter_lastname">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>90</y>
+     <width>281</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Enter your last name:</string>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="enter_age">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>210</y>
+     <width>281</width>
+     <height>31</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QLabel" name="name_of_window_enter_age">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>170</y>
+     <width>281</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Enter your age:</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="button_for_translation">
+   <property name="geometry">
+    <rect>
+     <x>320</x>
+     <y>50</y>
+     <width>41</width>
+     <height>191</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>➡</string>
+   </property>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
+'''
+template_4 = '''<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Form</class>
+ <widget class="QWidget" name="Form">
+  <property name="enabled">
+   <bool>true</bool>
+  </property>
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>461</width>
+    <height>400</height>
+   </rect>
+  </property>
+  <property name="font">
+   <font>
+    <pointsize>18</pointsize>
+   </font>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <widget class="QLabel" name="name_of_number_for_translation">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>15</y>
+     <width>341</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>13</pointsize>
+    </font>
+   </property>
+   <property name="text">
+    <string>Введите число:</string>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="number_for_translation">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>50</y>
+     <width>411</width>
+     <height>31</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="the_1_number_of_system">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>130</y>
+     <width>411</width>
+     <height>31</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QLabel" name="name_of_1_number_of_system">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>90</y>
+     <width>411</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>13</pointsize>
+    </font>
+   </property>
+   <property name="text">
+    <string>Система счисления, из которой перевести число:</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="name_of_2_number_of_system">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>170</y>
+     <width>411</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>13</pointsize>
+    </font>
+   </property>
+   <property name="text">
+    <string>Система счисления, в которую перевести число:</string>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="the_2_number_of_system">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>210</y>
+     <width>411</width>
+     <height>31</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="button_for_translation">
+   <property name="geometry">
+    <rect>
+     <x>150</x>
+     <y>260</y>
+     <width>141</width>
+     <height>51</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>↓ Результат ↓</string>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="result_of_translation">
+   <property name="geometry">
+    <rect>
+     <x>50</x>
+     <y>320</y>
+     <width>331</width>
+     <height>41</height>
+    </rect>
+   </property>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
+'''
+template_5 = '''<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Form</class>
+ <widget class="QWidget" name="Form">
+  <property name="enabled">
+   <bool>true</bool>
+  </property>
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>461</width>
+    <height>400</height>
+   </rect>
+  </property>
+  <property name="font">
+   <font>
+    <pointsize>18</pointsize>
+   </font>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <widget class="QLabel" name="name_of_number_for_translation">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>15</y>
+     <width>341</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>13</pointsize>
+    </font>
+   </property>
+   <property name="text">
+    <string>Еnter a number:</string>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="number_for_translation">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>50</y>
+     <width>411</width>
+     <height>31</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="the_1_number_of_system">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>130</y>
+     <width>411</width>
+     <height>31</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QLabel" name="name_of_1_number_of_system">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>90</y>
+     <width>411</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>13</pointsize>
+    </font>
+   </property>
+   <property name="text">
+    <string>The number system from which to translate:</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="name_of_2_number_of_system">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>170</y>
+     <width>411</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
+   <property name="text">
+    <string>The number system from which to convert the number:</string>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="the_2_number_of_system">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>210</y>
+     <width>411</width>
+     <height>31</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="button_for_translation">
+   <property name="geometry">
+    <rect>
+     <x>150</x>
+     <y>260</y>
+     <width>141</width>
+     <height>51</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>↓ Result ↓</string>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="result_of_translation">
+   <property name="geometry">
+    <rect>
+     <x>50</x>
+     <y>320</y>
+     <width>331</width>
+     <height>41</height>
+    </rect>
+   </property>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
+'''
+
+
+class Choose_language(QWidget):
+    def __init__(self):
+        super().__init__()
+        uic.loadUi(io.StringIO(template_1), self)
+        self.setWindowTitle('Выбор языка/choosing a language')
+        self.setWindowIcon(QIcon(r"C:\Users\MSI\Desktop\project_1_\изображения\языки.webp"))
+
+        self.button_for_english_translation.clicked.connect(self.button_for_english_translation_clicked)
+
+        self.button_for_russian_translation.clicked.connect(self.button_for_russian_translation_clicked)
+
+    def button_for_russian_translation_clicked(self):
+        self.window_for_russian_translate = Lobby_for_Russia()
+        self.window_for_russian_translate.show()
+        self.close()
+
+    def button_for_english_translation_clicked(self):
+        self.window_for_english_translate = Lobby_for_England()
+        self.window_for_english_translate.show()
+        self.close()
+
+
+class Lobby_for_Russia(QWidget):
+    def __init__(self):
+        super().__init__()
+        uic.loadUi(io.StringIO(template_2), self)
+        self.setWindowTitle('Лобби')
+        self.setWindowIcon(QIcon(r"C:\Users\MSI\Desktop\project_1_\изображения\lobby.jpg"))
+
+        self.enter_name.setToolTip('Введите ваше имя с заглавной буквы на русском языке')
+
+        self.enter_lastname.setToolTip('Введите вашу фамилию с заглавной буквы на русском языке')
+
+        self.enter_age.setToolTip('Введите ваш возраст цифрами')
+
+        self.button_for_translation.clicked.connect(self.translater)
+
+    def translater(self):
+        self.window_for_english_translate = Translater_from_Russian()
+        self.window_for_english_translate.show()
+        name_of_user = self.enter_name.text()
+        last_name_of_user = self.enter_lastname.text()
+        age_of_user = self.enter_age.text()
+        file = open('user_data.txt', 'w')
+        file.write(f'Имя: {name_of_user} фамилия: {last_name_of_user} возраст: {age_of_user}')
+        file.close()
+        self.close()
+
+
+class Lobby_for_England(QWidget):
+    def __init__(self):
+        super().__init__()
+        uic.loadUi(io.StringIO(template_3), self)
+        self.setWindowTitle('Lobby')
+        self.setWindowIcon(QIcon(r"C:\Users\MSI\Desktop\project_1_\изображения\lobby.jpg"))
+
+        self.enter_name.setToolTip('Enter your name with a capital letter in English')
+
+        self.enter_lastname.setToolTip('Enter your last name with a capital letter in English')
+
+        self.enter_age.setToolTip('Enter your age in numbers')
+
+        self.button_for_translation.clicked.connect(self.translater)
+
+    def translater(self):
+        self.window_for_english_translate = Translater_from_English()
+        self.window_for_english_translate.show()
+        name_of_user = self.enter_name.text()
+        last_name_of_user = self.enter_lastname.text()
+        age_of_user = self.enter_age.text()
+        file = open('user_data.txt', 'w')
+        file.write(f'Name: {name_of_user} last name: {last_name_of_user} age: {age_of_user}')
+        file.close()
+        self.close()
+
+
+class Translater_from_Russian(QWidget):
+    def __init__(self):
+        super().__init__()
+        uic.loadUi(io.StringIO(template_4), self)
+        self.setWindowTitle('Перевод чисел')
+        self.setWindowIcon(QIcon(r"C:\Users\MSI\Desktop\project_1_\изображения\icon.ico"))
+
+        self.number_for_translation.setToolTip('Введите число цифрами')
+
+        self.the_1_number_of_system.setToolTip('Введите систему счисления цифрами')
+
+        self.the_2_number_of_system.setToolTip('Введите систему счисления цифрами')
+
+        self.button_for_translation.clicked.connect(self.translate)
+
+        self.result_of_translation.setDisabled(True)
+        self.result_of_translation.setToolTip('Здесь будет результат перевода')
+
+    def translate(self):
+        con = sqlite3.connect('data_base_of_actions')
+        numbers_1 = '1234567890ABCDEFabcdef'
+        numbers_2 = '1234567890'
+        true = 1
+        res = ''
+        value, sys_1, sys_2 = self.number_for_translation.text(), self.the_1_number_of_system.text(), self.the_2_number_of_system.text()
+        value_copy = value
+        for i in range(len(value)):
+            if value[i] not in numbers_1:
+                true = 0
+                break
+        for i in range(len(sys_1)):
+            if sys_1[i] not in numbers_2:
+                true = 0
+                break
+        for i in range(len(sys_2)):
+            if sys_2[i] not in numbers_2:
+                true = 0
+                break
+        if true == 1:
+            sys_1, sys_2 = int(sys_1), int(sys_2)
+            if sys_2 == 10:
+                res = str(int(value, sys_1))
+                self.result_of_translation.setText(res)
+                self.result_of_translation.setDisabled(False)
+            else:
+                if sys_1 != 10:
+                    value = int(value, sys_1)
+                value = int(value)
+                if sys_2 == 2:
+                    res = str(bin(value))[2:]
+                    self.result_of_translation.setText(res)
+                    self.result_of_translation.setDisabled(False)
+                elif sys_2 == 8:
+                    res = str(oct(value))[2:]
+                    self.result_of_translation.setText(res)
+                    self.result_of_translation.setDisabled(False)
+                elif sys_2 == 16:
+                    res = str(hex(value))[2:]
+                    self.result_of_translation.setText(res)
+                    self.result_of_translation.setDisabled(False)
+                else:
+                    if value > sys_2:
+                        while value > sys_2:
+                            res += str(value % sys_2)
+                            value //= sys_2
+                        res += str(value % sys_2)
+                        res = res[::-1]
+                        self.result_of_translation.setText(res)
+                        self.result_of_translation.setDisabled(False)
+                    else:
+                        self.result_of_translation.setText(value)
+                        self.result_of_translation.setDisabled(False)
+        elif true == 0:
+            res = 'error'
+            self.result_of_translation.display(res)
+            self.result_of_translation.setDisabled(False)
+        request = f'''INSERT INTO data(number, first_sys, second_sys, result) 
+        VALUES('{value_copy}', {sys_1}, {sys_2}, {res})'''
+        con.execute(request).fetchall()
+        con.commit()
+        con.close()
+        
+
+class Translater_from_English(Translater_from_Russian, QWidget):
+    def __init__(self):
+        super().__init__()
+        uic.loadUi(io.StringIO(template_5), self)
+        self.setWindowTitle('Translating numbers')
+        self.setWindowIcon(QIcon(r"C:\Users\MSI\Desktop\project_1_\изображения\icon.ico"))
+
+        self.number_for_translation.setToolTip('Enter the number in digits')
+
+        self.the_1_number_of_system.setToolTip('Enter the number system in numbers')
+
+        self.the_2_number_of_system.setToolTip('Enter the number system in numbers')
+
+        self.button_for_translation.clicked.connect(self.translate)
+
+        self.result_of_translation.setDisabled(True)
+        self.result_of_translation.setToolTip('Here will be the result of the translation')
+
+    def translate(self):
+        super().translate()![lobby](https://github.com/user-attachments/assets/0995cbd8-4e59-4478-9980-9c2ae2d781ad)
+![lobby](https://github.com/user-attachments/assets/a33d386c-95cb-4947-9586-ad594b598080)
+
+![lobby](https://github.com/user-attachments/assets/390ec515-18b1-441d-9625-266527e67ebe)
+
+
+if __name__ == '__main__':
+    app = QApplication(sys.argv)
+    style = """
+        QWidget{
+            background: #3E424B;
+        }
+        QPushButton{
+            color: white;
+            background: #778899;
+            border-radius: 8px;
+        }
+        QPushButton:hover{
+            color: white;
+            background: #c5d1d8;
+            border-radius: 8px;
+        }
+        QLineEdit{
+            color: #424242;
+            background: #c5d1d8;
+            border-radius: 10px;
+        }
+        QLabel{
+            color: white;
+        }
+    """
+    app.setStyleSheet(style)
+    wt = Choose_language()
+    wt.show()
+    sys.exit(app.exec())
